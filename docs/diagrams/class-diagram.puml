@@ -1,0 +1,23 @@
+@startuml
+'https://plantuml.com/class-diagram
+
+class User {
+  +username: String
+  +password: String
+}
+
+class TodoList {
+  +user: ForeignKey(User)
+  +title: String
+}
+
+class TodoItem {
+  +todolist: ForeignKey(TodoList)
+  +title: String
+  +description: String
+  +completed: Boolean
+}
+
+User "1" -- "*" TodoList : owns
+TodoList "1" -- "*" TodoItem : contains
+@enduml
