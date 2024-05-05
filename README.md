@@ -1,5 +1,5 @@
 # Introduction
-This project is the back-end api of the todo-list project built using Next.js
+This project is the back-end api built using Django of the [todolist frontend](https://github.com/medardm/nextjs-todolist-frontend).
 
 ## Setup Instructions
 
@@ -12,7 +12,7 @@ This project is the back-end api of the todo-list project built using Next.js
 ### Steps
 1. **Clone the repository**
    Use Git to clone the repository.
-   `git clone <your-repository-url>`
+   `git clone https://github.com/medardm/django-todolist-api`
 
 2. **Create a virtual environment** (Optional)
    We highly recommend creating a virtual environment to isolate the application dependencies from your system's Python environment.
