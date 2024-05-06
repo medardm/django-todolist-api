@@ -10,7 +10,7 @@ from .serializers import TodoListSerializer, TodoItemsSerializer
 
 
 @api_view(['GET', 'POST'])
-def todo_lists(request):
+def todo_lists(request, format=None):
     if request.method == 'GET':
         todolists = TodoList.objects.all()
         serializer = TodoListSerializer(todolists, many=True)
@@ -25,7 +25,7 @@ def todo_lists(request):
 
 
 @api_view(['GET', 'PUT', 'DELETE'])
-def todo_list_detail(request, pk):
+def todo_list_detail(request, pk, format=None):
     todo_list = get_object_or_404(TodoList, pk=pk)
 
     if request.method == 'GET':
