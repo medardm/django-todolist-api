@@ -1,6 +1,10 @@
 # Introduction
 This project is the back-end api built using Django of the [todolist frontend](https://github.com/medardm/nextjs-todolist-frontend).
 
+## Documentation
+- the [docs](https://github.com/medardm/django-todolist-api/tree/main/docs/diagrams) directory contains all the project-related documents, design discussions, and diagrams (created using PlantUML).
+
+
 ## Setup Instructions
 
 ### Prerequisites

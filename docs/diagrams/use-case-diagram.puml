@@ -1,0 +1,11 @@
+@startuml
+:User: --> (Create TodoList)
+:User: --> (View TodoList)
+:User: --> (Update TodoList)
+:User: --> (Delete TodoList)
+
+:User: --> (Create ToDoItem)
+:User: --> (View ToDoItem)
+:User: --> (Update ToDoItem)
+:User: --> (Delete ToDoItem)
+@enduml

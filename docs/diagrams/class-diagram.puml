@@ -1,6 +1,4 @@
 @startuml
-'https://plantuml.com/class-diagram
-
 class User {
   +username: String
   +password: String
@@ -9,6 +7,8 @@ class User {
 class TodoList {
   +user: ForeignKey(User)
   +title: String
+  +created: DateTime
+  +updated: DateTime
 }
 
 class TodoItem {
@@ -16,8 +16,11 @@ class TodoItem {
   +title: String
   +description: String
   +completed: Boolean
+  +created: DateTime
+  +updated: DateTime
 }
 
 User "1" -- "*" TodoList : owns
 TodoList "1" -- "*" TodoItem : contains
 @enduml
+
