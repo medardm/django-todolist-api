@@ -4,7 +4,7 @@ from django.contrib.auth.models import User
 
 class TodoList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='todo_lists')
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
 
@@ -14,7 +14,7 @@ class TodoList(models.Model):
 
 class TodoItem(models.Model):
     todolist = models.ForeignKey(TodoList, on_delete=models.CASCADE, related_name='todo_items')
-    title = models.CharField(max_length=100)
+    title = models.CharField(max_length=100, unique=True)
     description = models.TextField(blank=True)
     completed = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now_add=True)
