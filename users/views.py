@@ -1,15 +1,20 @@
-from django import forms
+import datetime
+
+import jwt
+from django.contrib.auth import get_user_model, authenticate
+from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework.views import APIView
-from rest_framework.response import Response
+
+from todolistApi.decorators import jwt_required
+from todolistApi.settings import SECRET_JWT
 from .serializers import UserSerializer, RegistrationSerializer
-from django.contrib.auth.forms import UserCreationForm
-from django.contrib.auth import get_user_model, authenticate
 
 User = get_user_model()
 
 
 class UserListView(APIView):
+    @jwt_required
     def get(self, request, format=None):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -24,6 +29,7 @@ class UserListView(APIView):
 
 
 class RegisterView(APIView):
+    @jwt_required(disallow_authenticated=True)
     def post(self, request, format=None):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -31,3 +37,56 @@ class RegisterView(APIView):
             return Response(UserSerializer(user).data)  # Use UserSerializer just for the response
         return Response(serializer.errors)
 
+
+class LoginView(APIView):  # New login view
+    @jwt_required(disallow_authenticated=True)
+    def post(self, request):
+        username = request.data.get("username")
+        password = request.data.get("password")
+        remember_me = request.data.get("remember_me", False)
+        user = authenticate(username=username, password=password)
+        if user is not None:
+            # Set token expiry based on remember_me flag
+            dt = (datetime.datetime.now() + (datetime.timedelta(days=7) if remember_me
+                                             else datetime.timedelta(minutes=15)))
+
+            # refresh token will be valid for 7 days
+            refresh_dt = datetime.datetime.now() + datetime.timedelta(days=7)
+
+            token = jwt.encode({
+                'id': user.id,
+                'username': user.username,
+                'exp': int(dt.strftime('%s')),  # expiration time
+                'iat': datetime.datetime.now(),
+            }, SECRET_JWT, algorithm='HS256')
+
+            refresh_token = jwt.encode({
+                'id': user.id,
+                'username': user.username,
+                'exp': int(refresh_dt.strftime('%s')),  # expiration time
+                'iat': datetime.datetime.now(),
+            }, SECRET_JWT, algorithm='HS256')
+
+            response = Response({
+                "token": token,
+                "refresh_token": refresh_token,
+                "expires_at": dt.isoformat(),
+                "remember": 'yes' if remember_me else 'no',
+                "user": {
+                    "id": user.id,
+                    "username": user.username,
+                    "email": user.email,
+                },
+                "message": "Login successful"
+            })
+            response.set_cookie(
+                'token',
+                token,
+                httponly=True,
+                secure=True
+            )
+
+            return response
+
+        else:
+            return Response({"error": "Authentication Failed"}, status=HTTP_401_UNAUTHORIZED)
