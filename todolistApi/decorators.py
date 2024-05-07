@@ -5,6 +5,7 @@ from todolistApi.settings import SECRET_JWT
 from functools import wraps
 
 
+# THIS IS NOT NEEDED ANYMORE, BUT WILL NOT DELETE IT BECAUSE IT'S A GOOD EXAMPLE ON HOW TO USE DECORATORS
 def jwt_required(f=None, *, disallow_authenticated=False):
     def decorator(func):
         @wraps(func)
@@ -13,8 +14,9 @@ def jwt_required(f=None, *, disallow_authenticated=False):
                 token = request.COOKIES.get('token')
                 if token is not None:
                     try:
-                        jwt.decode(token, SECRET_JWT, algorithms='HS256')
-                        if disallow_authenticated:
+                        payload = jwt.decode(token, SECRET_JWT, algorithms='HS256')
+                        request.user = payload
+                        if disallow_authenticated and payload:
                             return JsonResponse({'error': 'You are not allowed to perform this action.'}, status=400)
                         return func(self, request, *args, **kwargs)
                     except InvalidTokenError:
