@@ -2,11 +2,12 @@ import datetime
 
 import jwt
 from django.contrib.auth import get_user_model, authenticate
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
 from rest_framework.views import APIView
 
-from todolistApi.decorators import jwt_required
+from todolistApi.permissions import IsSuperUser, IsNotAuthenticated
 from todolistApi.settings import SECRET_JWT
 from .serializers import UserSerializer, RegistrationSerializer
 
@@ -14,7 +15,8 @@ User = get_user_model()
 
 
 class UserListView(APIView):
-    @jwt_required
+    permission_classes = [IsSuperUser, IsAuthenticated]
+
     def get(self, request, format=None):
         users = User.objects.all()
         serializer = UserSerializer(users, many=True)
@@ -29,7 +31,8 @@ class UserListView(APIView):
 
 
 class RegisterView(APIView):
-    @jwt_required(disallow_authenticated=True)
+    permission_classes = [IsNotAuthenticated]
+
     def post(self, request, format=None):
         serializer = RegistrationSerializer(data=request.data)
         if serializer.is_valid():
@@ -38,8 +41,9 @@ class RegisterView(APIView):
         return Response(serializer.errors)
 
 
-class LoginView(APIView):  # New login view
-    @jwt_required(disallow_authenticated=True)
+class LoginView(APIView):
+    # permission_classes = [IsNotAuthenticated]
+
     def post(self, request):
         username = request.data.get("username")
         password = request.data.get("password")
@@ -56,6 +60,7 @@ class LoginView(APIView):  # New login view
             token = jwt.encode({
                 'id': user.id,
                 'username': user.username,
+                'is_superuser': user.is_superuser,
                 'exp': int(dt.strftime('%s')),  # expiration time
                 'iat': datetime.datetime.now(),
             }, SECRET_JWT, algorithm='HS256')
@@ -76,6 +81,7 @@ class LoginView(APIView):  # New login view
                     "id": user.id,
                     "username": user.username,
                     "email": user.email,
+                    "role": 'superuser' if user.is_superuser else 'staff'
                 },
                 "message": "Login successful"
             })
