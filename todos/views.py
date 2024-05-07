@@ -3,6 +3,7 @@ from django.http import JsonResponse
 from rest_framework import status
 from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
@@ -11,17 +12,19 @@ from .serializers import TodoListSerializer, TodoItemsSerializer
 
 
 class TodoListView(APIView):
+    permission_classes = [IsAuthenticated]
     """
     List all todo items, or create a new todo item.
     """
 
     def get(self, request, format=None):
-        todolists = TodoList.objects.all()
+        todolists = TodoList.objects.filter(user=request.user)
         serializer = TodoListSerializer(todolists, many=True)
         return Response({'success': 'true', 'message': 'Todo lists fetched successfully.', 'data': serializer.data},
                         status=status.HTTP_200_OK)
 
     def post(self, request, format=None):
+        request.data.update({"user": request.user.id})
         serializer = TodoListSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
@@ -32,12 +35,13 @@ class TodoListView(APIView):
 
 
 class TodoListDetailView(APIView):
+    permission_classes = [IsAuthenticated]
     """
     Retrieve, update or delete a todo item.
     """
 
     def get_object(self, pk):
-        return get_object_or_404(TodoList, pk=pk)
+        return get_object_or_404(TodoList, pk=pk, user=self.request.user)
 
     def get(self, request, pk, format=None):
         todo_list = self.get_object(pk)
@@ -47,6 +51,7 @@ class TodoListDetailView(APIView):
     def put(self, request, pk, format=None):
         todo_list = self.get_object(pk)
         serializer = TodoListSerializer(todo_list, data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response({'success': 'true', 'message': 'Todo list updated successfully.', 'data': serializer.data})
