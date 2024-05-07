@@ -15,7 +15,7 @@ class TodoListView(APIView):
     """
 
     def get(self, request, format=None):
-        todolists = TodoList.objects.filter(user=request.user)
+        todolists = TodoList.objects.filter(user=request.user).prefetch_related('todo_items')
         serializer = TodoListSerializer(todolists, many=True)
         return Response({'success': 'true', 'message': 'Todo lists fetched successfully.', 'data': serializer.data},
                         status=status.HTTP_200_OK)
