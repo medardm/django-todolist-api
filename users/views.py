@@ -96,3 +96,15 @@ class LoginView(APIView):
 
         else:
             return Response({"error": "Authentication Failed"}, status=HTTP_401_UNAUTHORIZED)
+
+
+class LogoutView(APIView):
+    def post(self, request):
+        """Log out user by blanking their token cookie."""
+
+        response = Response({"message": "Logout successful"})
+
+        # Invalidate the token
+        response.delete_cookie('token')
+
+        return response
