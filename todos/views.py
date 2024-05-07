@@ -1,20 +1,16 @@
-from django.shortcuts import render
-from django.http import JsonResponse
 from rest_framework import status
-from rest_framework.decorators import api_view
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
-from .models import TodoList, TodoItem
-from .serializers import TodoListSerializer, TodoItemsSerializer
+from .models import TodoList
+from .serializers import TodoListSerializer
 
 
 class TodoListView(APIView):
-    permission_classes = [IsAuthenticated]
     """
-    List all todo items, or create a new todo item.
+    List all todo items of authenticated user, create a new todo item, delete a particular todo list, or update a specific todo list.
     """
 
     def get(self, request, format=None):
@@ -26,6 +22,7 @@ class TodoListView(APIView):
     def post(self, request, format=None):
         request.data.update({"user": request.user.id})
         serializer = TodoListSerializer(data=request.data)
+
         if serializer.is_valid():
             serializer.save()
             return Response({'success': 'true', 'message': 'Todo list created successfully.', 'data': serializer.data},
@@ -50,16 +47,19 @@ class TodoListDetailView(APIView):
 
     def put(self, request, pk, format=None):
         todo_list = self.get_object(pk)
-        serializer = TodoListSerializer(todo_list, data=request.data)
+        serializer = TodoListSerializer(todo_list, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
-            return Response({'success': 'true', 'message': 'Todo list updated successfully.', 'data': serializer.data})
-        return Response({'success': 'false', 'message': 'Error updating todo list.', 'errors': serializer.errors},
-                        status=status.HTTP_400_BAD_REQUEST)
+            return Response({'success': 'true', 'message': 'Todo list updated successfully.', 'data': serializer.data},
+                            status=status.HTTP_200_OK)
+        else:
+            return Response({'success': 'false', 'message': 'Error updating todo list.', 'errors': serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
         todo_list = self.get_object(pk)
         todo_list.delete()
-        return Response({'success': 'true', 'message': 'Todo list was deleted successfully!'},
+
+        return Response({'success': 'true', 'message': 'Todo list was deleted successfully.'},
                         status=status.HTTP_204_NO_CONTENT)
