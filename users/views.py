@@ -89,7 +89,9 @@ class LoginView(APIView):
                 'token',
                 token,
                 httponly=True,
-                secure=True
+                # secure=True,
+                # samesite='Strict',
+                path='/'
             )
 
             return response
@@ -100,11 +102,41 @@ class LoginView(APIView):
 
 class LogoutView(APIView):
     def post(self, request):
-        """Log out user by blanking their token cookie."""
 
         response = Response({"message": "Logout successful"})
-
         # Invalidate the token
+        response.set_cookie('token', None)
         response.delete_cookie('token')
+
+        return response
+
+
+class ValidateTokenView(APIView):
+    authentication_classes = []
+
+    def post(self, request):
+        token = request.COOKIES.get('token')
+        response = None
+
+        if not token:
+            return Response({"error": "No token provided", "token_is_valid": False}, status=400)
+
+        try:
+            payload = jwt.decode(token, SECRET_JWT, algorithms='HS256')
+            user = User.objects.filter(id=payload['id']).first()
+
+            if user is None:
+                response = Response({'error': 'Token is invalid, User not found!', "token_is_valid": False}, status=400)
+            else:
+                response = Response({'message': 'Token is valid', "token_is_valid": True}, status=200)
+
+        except jwt.ExpiredSignatureError as e:
+            response = Response({'error': 'Token has expired', "token_is_valid": False}, status=400)
+        except jwt.DecodeError as e:
+            response = Response({"error": "Invalid token", "token_is_valid": False}, status=400)
+
+        if not response.data["token_is_valid"]:
+            response.set_cookie('token', None)
+            response.delete_cookie('token')
 
         return response

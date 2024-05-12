@@ -11,6 +11,9 @@ class JWTAuthentication(BaseAuthentication):
     def authenticate(self, request):
         User = get_user_model()
 
+        if 'login' in request.path:  # adjust the condition according to your login URL
+            return None
+
         # Token can be taken from request cookies instead of from header
         token = request.COOKIES.get('token')
 
