@@ -3,6 +3,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.throttling import ScopedRateThrottle
 
 from .models import TodoList, TodoItem
 from .serializers import TodoListSerializer, TodoItemSerializer
@@ -10,9 +11,8 @@ from .serializers import TodoListSerializer, TodoItemSerializer
 
 class TodoListView(APIView):
     permission_classes = [IsAuthenticated]
-    """
-    List all todo items of authenticated user, create a new todo item, delete a particular todo list, or update a specific todo list.
-    """
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'per_minute'
 
     def get(self, request, format=None):
         todolists = TodoList.objects.filter(user=request.user).prefetch_related('todo_items')
@@ -34,6 +34,8 @@ class TodoListView(APIView):
 
 class TodoListDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'per_minute'
     """
     Retrieve, update or delete a todo item.
     """
@@ -69,6 +71,8 @@ class TodoListDetailView(APIView):
 # TODO MOVE THESE IN SEPARATE VIEWS
 class TodoItemView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'per_minute'
 
     def get(self, request, todo_list_pk, format=None):
         request.data.update({"todolist": todo_list_pk})
@@ -92,6 +96,8 @@ class TodoItemView(APIView):
 
 class TodoItemDetailView(APIView):
     permission_classes = [IsAuthenticated]
+    throttle_classes = [ScopedRateThrottle]
+    throttle_scope = 'per_minute'
 
     def get_object(self, todo_list_pk, pk):
         return get_object_or_404(TodoItem, todolist__id=todo_list_pk, id=pk, todolist__user=self.request.user)
