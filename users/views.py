@@ -31,7 +31,7 @@ class UserListView(APIView):
 
 
 class RegisterView(APIView):
-    permission_classes = [IsNotAuthenticated]
+    # permission_classes = [IsNotAuthenticated]
 
     def post(self, request, format=None):
         serializer = RegistrationSerializer(data=request.data)
