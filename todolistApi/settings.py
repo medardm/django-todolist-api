@@ -30,7 +30,7 @@ SECRET_JWT = os.getenv('SECRET_JWT', 'sample_jwt_secret_key_12345678')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*'] # todo whitelist instead
 
 # Application definition
 
