@@ -30,7 +30,9 @@ SECRET_JWT = os.getenv('SECRET_JWT', 'sample_jwt_secret_key_12345678')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'ec2-54-162-144-198.compute-1.amazonaws.com'
+]
 
 # Application definition
 
