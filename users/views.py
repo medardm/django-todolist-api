@@ -90,7 +90,7 @@ class LoginView(APIView):
                 token,
                 httponly=True,
                 # secure=True,
-                # samesite='Strict',
+                samesite='None',
                 path='/'
             )
 
