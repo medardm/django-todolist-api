@@ -30,10 +30,7 @@ SECRET_JWT = os.getenv('SECRET_JWT', 'sample_jwt_secret_key_12345678')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = [
-    'ec2-54-162-144-198.compute-1.amazonaws.com',
-    'localhost'
-]
+ALLOWED_HOSTS = []
 
 # Application definition
 
@@ -149,7 +146,3 @@ AUTH_USER_MODEL = 'users.User'
 
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOW_CREDENTIALS = True
-CSRF_COOKIE_SECURE = False
-CSRF_COOKIE_SAMESITE = 'Lax'
-SESSION_COOKIE_SAMESITE = 'None'
-SESSION_COOKIE_SECURE = False
